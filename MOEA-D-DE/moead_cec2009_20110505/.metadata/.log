@@ -1,0 +1,13 @@
+!SESSION 2011-05-06 16:42:22.244 -----------------------------------------------
+eclipse.buildId=M20110210-1200
+java.version=1.6.0_24
+java.vendor=Apple Inc.
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_US
+Framework arguments:  -product org.eclipse.epp.package.cpp.product -product org.eclipse.epp.package.cpp.product -keyring /Users/Aimin/.eclipse_keyring -showlocation
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.cpp.product -data /Users/Aimin/work/moead/cec09/moead_cec2009_20110505 -product org.eclipse.epp.package.cpp.product -keyring /Users/Aimin/.eclipse_keyring -showlocation
+
+!ENTRY org.eclipse.core.net 1 0 2011-05-06 16:42:31.495
+!MESSAGE System property http.nonProxyHosts has been set to local|*.local|169.254/16|*.169.254/16 by an external source. This value will be overwritten using the values from the preferences
+
+!ENTRY org.eclipse.cdt.core 1 0 2011-05-06 16:44:15.297
+!MESSAGE Indexed 'moead_cpp' (2 sources, 179 headers) in 21.97 sec: 15,841 declarations; 29,088 references; 0 unresolved inclusions; 6 syntax errors; 10 unresolved names (0.02%)

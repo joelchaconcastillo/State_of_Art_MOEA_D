@@ -10,7 +10,7 @@
 #include <time.h>
 #include <memory.h>
 #include <vector>
-#include <windows.h>
+//#include <windows.h>
 
 using namespace std;
 
