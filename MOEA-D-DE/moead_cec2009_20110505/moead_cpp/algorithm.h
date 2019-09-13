@@ -27,8 +27,8 @@ public:
 	// execute MOEAD
 	void exec_emo(int run);
 
-	void save_front(char savefilename[1024]);       // save the pareto front into files
-	void save_pos(char savefilename[1024]);
+	void save_front(char savefilename[4024]);       // save the pareto front into files
+	void save_pos(char savefilename[4024]);
 
 	void tour_selection(int depth, vector<int> &selected);
 	void comp_utility();
@@ -41,14 +41,14 @@ public:
 public:
 
 	// algorithm parameters
-    int		max_gen;       //  the maximal number of generations
-	int     pops;          //  the population size
-    int	    niche;         //  the neighborhood size
-	int     limit;         //  the maximal number of solutions replaced
-	double  prob;          //  the neighboring selection probability
+  //  int		max_gen;       //  the maximal number of generations
+//	int     pops;          //  the population size
+//    int	    niche;         //  the neighborhood size
+//	int     limit;         //  the maximal number of solutions replaced
+//	double  prob;          //  the neighboring selection probability
 //	double  rate;          //  the differential rate between solutions
 
-	int     nfes;          //  the number of function evluations
+//	int     nfes;          //  the number of function evluations
 
 };
 
@@ -69,7 +69,7 @@ void CMOEAD::init_population()
 
 	char filename[1024];
 	// Read weight vectors from a data file
-	sprintf(filename,"ParameterSetting/Weight/W%dD_%d.dat", nobj, pops);
+	sprintf(filename,"%s/ParameterSetting/Weight/W%dD_%d.dat", strpath, nobj, pops);
 	std::ifstream readf(filename);
 
     for(int i=0; i<pops; i++)
@@ -298,7 +298,7 @@ void CMOEAD::evol_population()
 
 		// produce a child solution
 		CIndividual child;
-		double rate2 = 0.5; //rate + 0.25*(rnd_uni(&rnd_uni_init) - 0.5);
+		double rate2 = box_muller(0.5,0.1); //rate + 0.25*(rnd_uni(&rnd_uni_init) - 0.5);
 		diff_evo_xoverB(population[c_sub].indiv,population[plist[0]].indiv,population[plist[1]].indiv, child, rate2);
 		plist.clear();
 
@@ -319,22 +319,39 @@ void CMOEAD::evol_population()
 
 void CMOEAD::exec_emo(int run)
 {
-    char filename[1024];
+    char filename1[5024];
+    char filename2[5024];
+    seed = run;
+    seed = (seed + 23)%1377;
+    rnd_uni_init = -(long)seed;
 
 	// initialization
-	nfes      = 0;
+    nfes      = 0;
+    sprintf(filename1,"%s/POS/POS_MOEAD_%s_RUN%d_seed_%d_nobj_%d_niche_%d.dat_bounded",strpath, strTestInstance,run, seed, nobj, niche);
+    sprintf(filename2,"%s/POF/POF_MOEAD_%s_RUN%d_seed_%d_nobj_%d_niche_%d.dat_bounded",strpath, strTestInstance,run, seed, nobj, niche);
 
-	init_population();
+    init_population();
     init_neighbourhood();
+        save_pos(filename1);
+        save_front(filename2);
 
 	int gen = 0;
 	//save_front(filename);
 
 //	max_gen = int(5.0*300000/pops);
-	
-	while(nfes<300000)
+    int current = nfes;
+    int accumulator = 0, bef = nfes;
+	while(nfes< max_nfes)
 	{
 		evol_population();
+		accumulator += nfes - bef ;
+                if(accumulator > 0.1*(max_nfes)  )
+                {
+                   accumulator -= 0.1*(max_nfes);
+                   save_pos(filename1);
+                   save_front(filename2);
+                }
+                bef=nfes;
 
 		gen++;
 
@@ -346,8 +363,10 @@ void CMOEAD::exec_emo(int run)
 
 //	sprintf(filename,"POFS/PS_%s_%d.dat",strTestInstance,run);
 //	save_pos(filename);
-	sprintf(filename,"POF/PF_%s_%d.dat",strTestInstance, run);
-	save_front(filename);
+//	sprintf(filename,"POF/PF_%s_%d.dat",strTestInstance, run);
+//	save_front(filename);
+        save_pos(filename1);
+        save_front(filename2);
 
 	population.clear();
 	idealpoint.clear();
@@ -357,27 +376,31 @@ void CMOEAD::load_parameter()
 {
 	char filename[1024];
 
-	sprintf(filename,"ParameterSetting/%s.txt", strTestInstance);
+	sprintf(filename,"%s/ParameterSetting/%s.txt", strpath, strTestInstance);
 
 	char temp[1024];
 	std::ifstream readf(filename);
 	readf.getline(temp, 1024);
 
-	readf>>pops;
-	readf>>max_gen;
-	readf>>niche;
-	readf>>limit;
-	readf>>prob;
+//	readf>>pops;
+//	readf>>max_gen;
+//	readf>>niche;
+//	readf>>limit;
+//	readf>>prob;
+//        pops=100;
+        //max_gen = 250000;
+//	niche = 10;
 //	readf>>rate;
 
 	readf.close();
 }
 
 
-void CMOEAD::save_front(char saveFilename[1024])
+void CMOEAD::save_front(char saveFilename[4024])
 {
     std::fstream fout;
-	fout.open(saveFilename,std::ios::out);
+//	fout.open(saveFilename,std::ios::out);
+	fout.open(saveFilename,fstream::app|fstream::out );
 	fout<<setprecision(3) << scientific;
 	for(int n=0; n<pops; n++)
 	{
@@ -388,10 +411,12 @@ void CMOEAD::save_front(char saveFilename[1024])
 	fout.close();
 }
 
-void CMOEAD::save_pos(char saveFilename[1024])
+void CMOEAD::save_pos(char saveFilename[4024])
 {
     std::fstream fout;
-	fout.open(saveFilename,std::ios::out);
+//	fout.open(saveFilename,std::ios::out);
+	fout.open(saveFilename, fstream::app|fstream::out);
+
 	fout<<setprecision(3) << scientific;
 	for(int n=0; n<pops; n++)
 	{

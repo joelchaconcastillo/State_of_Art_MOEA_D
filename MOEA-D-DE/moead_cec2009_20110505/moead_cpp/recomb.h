@@ -18,8 +18,8 @@ void realmutation(CIndividual &ind, double rate)
         if (rnd_uni(&rnd_uni_init)<=rate)
         {
             y  = ind.x_var[j];
-            yl = lowBound;
-            yu = uppBound;
+            yl = vlowBound[j];
+            yu = vuppBound[j];
             delta1 = (y-yl)/(yu-yl);
             delta2 = (yu-y)/(yu-yl);
             rnd = rnd_uni(&rnd_uni_init);
@@ -257,7 +257,7 @@ void diff_evo_xoverB(CIndividual &ind0, CIndividual &ind1, CIndividual &ind2, CI
 {
 
 	int idx_rnd = int(rnd_uni(&rnd_uni_init)*nvar);
-
+	double CR   =  (rnd_uni(&rnd_uni_init)<0.5)?0.2:1.0;
 	for(int n=0;n<nvar;n++)
 	{
 	  /*Selected Two Parents*/
@@ -268,7 +268,7 @@ void diff_evo_xoverB(CIndividual &ind0, CIndividual &ind1, CIndividual &ind2, CI
 	  //*
 	  // strategy two
 	  double rnd1 = rnd_uni(&rnd_uni_init);
-	  double CR   = 1.0;
+//	  double CR   = 1.0;
 	  if(rnd1<CR||n==idx_rnd)
 		  child.x_var[n] = ind0.x_var[n] + rate*(ind2.x_var[n] - ind1.x_var[n]);
 	  else
@@ -277,17 +277,19 @@ void diff_evo_xoverB(CIndividual &ind0, CIndividual &ind1, CIndividual &ind2, CI
 
 
 	  // handle the boundary voilation
-	  if(child.x_var[n]<lowBound){
+	  if(child.x_var[n]<vlowBound[n]){
 		  double rnd = rnd_uni(&rnd_uni_init);
-		  child.x_var[n] = lowBound + rnd*(ind0.x_var[n] - lowBound);
+		  //child.x_var[n] = lowBound + rnd*(ind0.x_var[n] - lowBound);
+		  child.x_var[n] = ind0.x_var[n];
 	  }
-	  if(child.x_var[n]>uppBound){ 
+	  if(child.x_var[n]>vuppBound[n]){ 
 		  double rnd = rnd_uni(&rnd_uni_init);
-		  child.x_var[n] = uppBound - rnd*(uppBound - ind0.x_var[n]);
+		  //child.x_var[n] = uppBound - rnd*(uppBound - ind0.x_var[n]);
+		  child.x_var[n] = ind0.x_var[n];
 	  }
 
-	  //if(child.x_var[n]<lowBound) child.x_var[n] = lowBound;
-	  //if(child.x_var[n]>uppBound) child.x_var[n] = uppBound;
+	  if(child.x_var[n]<vlowBound[n]) child.x_var[n] = vlowBound[n];
+	  if(child.x_var[n]>vuppBound[n]) child.x_var[n] = vuppBound[n];
 	}
 }
 
